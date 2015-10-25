@@ -15,7 +15,6 @@ public class Autonomous extends Hardware
     {
     }
 
-
     private int v_state = 1;
 
     private boolean isLeft;
@@ -30,7 +29,7 @@ public class Autonomous extends Hardware
     // values is a reference to the hsvValues array.
     final float values[] = hsvValues;
 
-    private boolean teamColorBlue = true;
+    boolean teamColorBlue;
 
     ReadBeacon readBeacon1 = new ReadBeacon();
     MoveArm moveArm1 = new MoveArm();

@@ -30,33 +30,32 @@ public class TeleOp extends Hardware {
         // class, but the power levels aren't applied until this method ends.
         //
 
-        //
-        // Manage the drive wheel motors.
-        //
-        float l_gp1_left_stick_y = gamepad1.left_stick_y;
+        //DRIVE
+        float l_gp1_left_stick_y = -gamepad1.left_stick_y;
         float l_left_drive_power
                 = (float)scale_motor_power (l_gp1_left_stick_y);
 
-        float l_gp1_right_stick_y = gamepad1.right_stick_y;
+        float l_gp1_right_stick_y = -gamepad1.right_stick_y;
         float l_right_drive_power
-                = (float)scale_motor_power (l_gp1_right_stick_y);
+                = scale_motor_power (l_gp1_right_stick_y);
 
         set_drive_power (l_left_drive_power, l_right_drive_power);
 
 
-        //manage the arms
+        //ARM
         float l_gp2_left_stick_y = gamepad2.left_stick_y;
         float l_first_arm_power
-                = (float) scale_motor_power (l_gp2_left_stick_y);
+                = scale_motor_power (l_gp2_left_stick_y);
 
         float l_gp2_right_stick_y = -gamepad2.right_stick_y;
         float l_second_arm_power
-                = (float) scale_motor_power (l_gp2_right_stick_y);
+                = scale_motor_power (l_gp2_right_stick_y);
 
         set_arm_power (l_first_arm_power, l_second_arm_power);
 
+
+        //CLAW
         float l_claw_power = scale_motor_power(0);
-        //l_claw_power = (float) scale_motor_power (l_gp1_right_stick_y);
         if (gamepad1.left_bumper)
         {
             l_claw_power = scale_motor_power(1);
@@ -65,6 +64,19 @@ public class TeleOp extends Hardware {
             l_claw_power = scale_motor_power(-1);
         }
         set_claw_power(l_claw_power);
+
+
+
+        //WINCH
+        float l_winch_power = scale_motor_power(0);
+        if (gamepad2.right_bumper)
+        {
+            l_winch_power = scale_motor_power(1);
+        }else if (gamepad2.right_trigger > 0.0)
+        {
+            l_winch_power = scale_motor_power(-1);
+        }
+        set_winch_power(l_winch_power);
 
        //push_beacon(gamepad1.a);
 

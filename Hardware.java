@@ -145,6 +145,19 @@ public class Hardware extends OpMode {
 
             v_claw = null;
         }
+        try
+        {
+            v_winch = hardwareMap.dcMotor.get ("winch");
+
+        }
+        catch (Exception p_exception)
+        {
+            m_warning_message ("winch");
+            DbgLog.msg (p_exception.getLocalizedMessage ());
+
+            v_winch = null;
+        }
+
 
         /*v_motor_left_drive = hardwareMap.dcMotor.get("left_drive");
 
@@ -224,8 +237,8 @@ public class Hardware extends OpMode {
                 );
         telemetry.addData
                 ( "03"
-                         , "Claw Drive: "
-                                + a_claw_power()
+                         , "Winch Drive: "
+                                + a_winch_power()
                 );
     }
 
@@ -255,6 +268,8 @@ public class Hardware extends OpMode {
         telemetry.addData ("10", "GP1 LT: " + gamepad1.left_trigger);
         telemetry.addData ("11", "GP1 RT: " + gamepad1.right_trigger);
         telemetry.addData ("12", "GP1 LB: " + gamepad1.left_bumper);
+        telemetry.addData ("13", "GP2 RT: " + gamepad2.right_trigger);
+        telemetry.addData ("14", "GP2 RB: " + gamepad2.right_bumper);
 
         telemetry.addData("100", "GP1 A: " + gamepad1.a);
     } // update_gamepad_telemetry
@@ -423,6 +438,16 @@ public class Hardware extends OpMode {
         }
         return l_return;
     }
+
+    double a_winch_power()
+    {
+        double l_return = -999;
+        if (v_winch != null)
+        {
+            l_return = v_winch.getPower();
+        }
+        return l_return;
+    }
     //--------------------------------------------------------------------------
     //
     // set_drive_power
@@ -466,6 +491,14 @@ public class Hardware extends OpMode {
         if (v_second_arm != null)
         {
             v_second_arm.setPower (p_second_power);
+        }
+    }
+
+    void set_winch_power(double p_power)
+    {
+        if(v_winch != null)
+        {
+            v_winch.setPower(p_power);
         }
     }
 
@@ -995,6 +1028,8 @@ public class Hardware extends OpMode {
     private DcMotor v_claw;
 
     private ColorSensor v_sensorRGB;
+
+    private DcMotor v_winch;
 }
 
 
