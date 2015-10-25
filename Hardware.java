@@ -969,7 +969,7 @@ public class Hardware extends OpMode {
     {
         if (isLeft)
         {
-            v_servo_push_beacon.setPosition (0.5D);
+            v_servo_push_beacon.setPosition (0.0D);
         }
         else
         {

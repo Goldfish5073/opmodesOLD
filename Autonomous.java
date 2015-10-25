@@ -59,15 +59,21 @@ public class Autonomous extends Hardware
     @Override public void loop ()
 
     {
-        if (readBeacon1.action()){}
-        else if (moveArm1.action()){}
-        else if (pressButton1.action()){}
+        if (readBeacon1.action()) {
+        } else if (moveArm1.action()) {
+        } else if (pressButton1.action()) {
+        }
 
+        if(gamepad1.a) {
+            readBeacon1.reset();
+            moveArm1.reset();
+            pressButton1.reset();
+        }
         //----------------------------------------------------------------------
         //
         // State: Initialize (i.e. state_0).
         //
-        switch (v_state)
+      /*  switch (v_state)
         {
 
             //
@@ -121,7 +127,7 @@ public class Autonomous extends Hardware
                 //
                 break;
         }
-
+*/
         //
         // Send telemetry data to the driver station.
         //
@@ -132,11 +138,11 @@ public class Autonomous extends Hardware
     } // loop
 
 
-    void drive ()
+    void drive (float speed, int encoderCount)
     {
         run_using_encoders();
-        set_drive_power(1.0f, 1.0f);
-        if (have_drive_encoders_reached (2880, 2880))
+        set_drive_power(speed, speed);
+        if (have_drive_encoders_reached (encoderCount, encoderCount))
         {
             reset_drive_encoders ();
             set_drive_power (0.0f, 0.0f);
@@ -184,9 +190,13 @@ public class Autonomous extends Hardware
 
         }
 
+        void reset()
+        {
+            state = -1;
+        }
+
         boolean action()
         {
-
 
             if (state == 1) {
                 return false;
@@ -227,10 +237,18 @@ public class Autonomous extends Hardware
         MoveArm(){
             state = -1;
         }
+        void reset()
+        {
+            state = -1;
+        }
         boolean action(){
             if (state == 1) {
                 return false;
             }
+            push_beacon(isLeft);
+
+            state = 1;
+
             return true;
         }
     }
@@ -239,10 +257,18 @@ public class Autonomous extends Hardware
         PressButton() {
             state = -1;
         }
+        void reset()
+        {
+            state = -1;
+        }
         boolean action(){
             if (state == 1){
                 return false;
             }
+
+            drive (1.0f, 2);
+
+            state = 1;
             return true;
         }
     }
