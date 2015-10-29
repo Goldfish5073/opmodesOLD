@@ -5,12 +5,18 @@ import android.graphics.Color;
 import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 
+
+
+
+
 /**
  * Created by Jachzach on 10/21/2015.
  */
 //TODO: register colorsensor in hardware, see why threw uncaught exception can't find hardware device "mr"
 public class Autonomous extends Hardware
 {
+    FtcConfig ftcConfig=new FtcConfig();
+
     public Autonomous()
     {
     }
@@ -34,6 +40,9 @@ public class Autonomous extends Hardware
     ReadBeacon readBeacon1 = new ReadBeacon();
     MoveArm moveArm1 = new MoveArm();
     PressButton pressButton1 = new PressButton();
+    Delay delay1 = new Delay();
+    TurnRight turnRight1 = new TurnRight();
+    TurnLeft turnLeft1 = new TurnLeft();
 
     @Override public void start ()
     {
@@ -52,13 +61,25 @@ public class Autonomous extends Hardware
 
             sensorRGB = null;
         }
+
+        ftcConfig.init(hardwareMap.appContext, this);
         // sensorRGB = hardwareMap.colorSensor.get("mr");
     } // start
 
     @Override public void loop ()
 
     {
-        if (readBeacon1.action()) {
+        telemetry.clearData();
+        // can use configured variables here
+        telemetry.addData("ColorIsRed", Boolean.toString(ftcConfig.param.colorIsRed));
+        telemetry.addData("DelayInSec", Integer.toString(ftcConfig.param.delayInSec));
+        telemetry.addData("AutonType", ftcConfig.param.autonType);
+
+
+        if (delay1.action()){
+        } else if (turnRight1.action(1.0f, 1000)){
+        } else if (turnLeft1.action(1.0f, 1000)){
+        } else if (readBeacon1.action()) {
         } else if (moveArm1.action()) {
         } else if (pressButton1.action()) {
         }
@@ -137,17 +158,8 @@ public class Autonomous extends Hardware
     } // loop
 
 
-    void drive (float speed, int encoderCount)
-    {
-        run_using_encoders();
-        set_drive_power(speed, speed);
-        if (have_drive_encoders_reached (encoderCount, encoderCount))
-        {
-            reset_drive_encoders ();
-            set_drive_power (0.0f, 0.0f);
-            v_state++;
-        }
-    }
+
+
 
     void pause ()
     {
@@ -205,7 +217,7 @@ public class Autonomous extends Hardware
 
             if (hsvValues[0] > 10)
             {
-                if(teamColorBlue)
+                if(ftcConfig.param.colorIsRed)
                 {
                     isLeft = true;
                 }
@@ -215,7 +227,7 @@ public class Autonomous extends Hardware
                 }
             } else
             {
-                if(teamColorBlue)
+                if(ftcConfig.param.colorIsRed)
                 {
                     isLeft = false;
                 }
@@ -265,10 +277,148 @@ public class Autonomous extends Hardware
                 return false;
             }
 
-            drive (1.0f, 2);
+            drive(1.0f, 2);
 
             state = 1;
             return true;
+        }
+    }
+
+    private class Delay {
+        int state;
+        long startTime;
+        Delay() {
+            state = -1;
+        }
+        void reset() { state = -1; }
+        boolean action() {
+            if (state == -1){
+                startTime = System.currentTimeMillis();
+                state = 0;
+            }
+            if (state == 1) {
+                return false;
+            }
+
+            if (System.currentTimeMillis() > (startTime + ftcConfig.param.delayInSec * 1000)) {
+                state = 1;
+            }
+
+            return true;
+        }
+    }
+
+
+    private class Drive {
+        int state;
+
+        Drive() {
+            state = -1;
+            run_using_encoders();
+        }
+
+        void reset() {
+            state = -1;
+        }
+
+        boolean action(float speed, int encoderCount) {
+            if (state == -1){
+                set_drive_power(speed, speed);
+                state = 0;
+            }
+            if (state == 1)
+            {
+                return false;
+            }
+            
+            if (have_drive_encoders_reached (encoderCount, encoderCount))
+            {
+                reset_drive_encoders ();
+                set_drive_power (0.0f, 0.0f);
+                state = 1;
+            }
+
+            return true;
+        }
+    }
+
+    private class TurnRight {
+        int state;
+
+        TurnRight() {
+            state = -1;
+            run_using_encoders();
+        }
+
+        void reset() {
+            state = -1;
+        }
+
+        boolean action(float speed, int encoderCount) {
+            if (state == 1)
+            {
+                return false;
+            }
+
+            state = 0;
+            set_drive_power(-speed, speed);
+
+            if (have_drive_encoders_reached (encoderCount, encoderCount))
+            {
+                reset_drive_encoders ();
+                set_drive_power (0.0f, 0.0f);
+                state = 1;
+            }
+
+            return true;
+        }
+    }
+
+    private class TurnLeft {
+        int state;
+
+        TurnLeft() {
+            state = -1;
+            run_using_encoders();
+        }
+
+        void reset() {
+            state = -1;
+        }
+
+        boolean action(float speed, int encoderCount) {
+            if (state == 1)
+            {
+                return false;
+            }
+
+            state = 0;
+            set_drive_power(speed, -speed);
+
+            if (have_drive_encoders_reached (encoderCount, encoderCount))
+            {
+                reset_drive_encoders ();
+                set_drive_power (0.0f, 0.0f);
+                state = 1;
+            }
+
+            return true;
+        }
+    }
+
+
+
+
+    void drive (float speed, int encoderCount)
+    {
+
+        run_using_encoders();
+        set_drive_power(speed, speed);
+        if (have_drive_encoders_reached (encoderCount, encoderCount))
+        {
+            reset_drive_encoders ();
+            set_drive_power (0.0f, 0.0f);
+            v_state++;
         }
     }
     //read beacon
